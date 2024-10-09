@@ -14,30 +14,39 @@ import { colors } from "@/styles/colors";
 import { Categories } from "@/components/categories";
 import { Link } from "@/components/link";
 import { Option } from "@/components/option";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { categories } from "@/utils/categories";
 import { LinkStorage, linkStorage } from "@/storage/link-storage";
 
 export default function Index() {
+  const [showModal, setShowModal] = useState(false);
+  const [link, setLink] = useState<LinkStorage>({} as LinkStorage)
   const [links, setLinks] = useState<LinkStorage[]>([]);
   const [category, setCategory] = useState(categories[0].name);
 
   async function getLinks() {
     try {
       const response = await linkStorage.get();
-      setLinks(response);
+
+      const filtered = response.filter((link) => link.category === category);
+
+      setLinks(filtered);
     } catch (error) {
       Alert.alert("Erro", "Não foi possível carregar os links");
     }
   }
 
-  useFocusEffect(useCallback(() => {
-    getLinks()
-  }, []));
+  function handleDetails(selected: LinkStorage) {
+    setShowModal(true);
+    setLink(selected);
+  }
 
-  // useEffect(() => {
-  //   getLinks()
-  // },[category])
+  useFocusEffect(
+    useCallback(() => {
+      getLinks();
+    }, [category])
+  );
+
 
   return (
     <View style={styles.container}>
@@ -58,7 +67,7 @@ export default function Index() {
           <Link
             name={item.name}
             url={item.url}
-            onDetails={() => console.log("item")}
+            onDetails={() => handleDetails(item)}
           />
         )}
         style={styles.links}
@@ -66,12 +75,12 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
       />
 
-      <Modal transparent visible={false}>
+      <Modal transparent visible={showModal} animationType="slide">
         <View style={styles.modal}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalCategory}>Curso</Text>
-              <TouchableOpacity>
+              <Text style={styles.modalCategory}>{link.category}</Text>
+              <TouchableOpacity onPress={() => setShowModal(false)}>
                 <MaterialIcons
                   name="close"
                   size={20}
@@ -80,8 +89,8 @@ export default function Index() {
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.modalLinkName}>RocketSeat</Text>
-            <Text style={styles.modalUrl}>RocketSeat.com</Text>
+            <Text style={styles.modalLinkName}>{link.name}</Text>
+            <Text style={styles.modalUrl}>{link.url}</Text>
 
             <View style={styles.modalFooter}>
               <Option name="Excluir" icon="delete" variant="secondary" />
