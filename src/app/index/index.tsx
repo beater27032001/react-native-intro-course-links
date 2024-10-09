@@ -6,6 +6,7 @@ import {
   Modal,
   Text,
   Alert,
+  Linking,
 } from "react-native";
 import { router, useFocusEffect } from "expo-router";
 import { styles } from "./styles";
@@ -20,7 +21,7 @@ import { LinkStorage, linkStorage } from "@/storage/link-storage";
 
 export default function Index() {
   const [showModal, setShowModal] = useState(false);
-  const [link, setLink] = useState<LinkStorage>({} as LinkStorage)
+  const [link, setLink] = useState<LinkStorage>({} as LinkStorage);
   const [links, setLinks] = useState<LinkStorage[]>([]);
   const [category, setCategory] = useState(categories[0].name);
 
@@ -41,12 +42,40 @@ export default function Index() {
     setLink(selected);
   }
 
+  async function linkRemove() {
+    try {
+      await linkStorage.remove(link.id);
+      getLinks();
+      setShowModal(false);
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível remover o link");
+    }
+  }
+
+  function handleRemove() {
+    Alert.alert("Remover", "Tem certeza que deseja remover o link?", [
+      { style: "cancel", text: "Não" },
+      {
+        text: "Sim",
+        onPress: linkRemove,
+      },
+    ]);
+  }
+
+  async function handleOpen(){
+    try {
+      await Linking.openURL(link.url);
+      setShowModal(false);
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível abrir o link");
+    }
+  }
+
   useFocusEffect(
     useCallback(() => {
       getLinks();
     }, [category])
   );
-
 
   return (
     <View style={styles.container}>
@@ -93,8 +122,13 @@ export default function Index() {
             <Text style={styles.modalUrl}>{link.url}</Text>
 
             <View style={styles.modalFooter}>
-              <Option name="Excluir" icon="delete" variant="secondary" />
-              <Option name="Abrir" icon="language" />
+              <Option
+                name="Excluir"
+                icon="delete"
+                variant="secondary"
+                onPress={handleRemove}
+              />
+              <Option name="Abrir" icon="language" onPress={handleOpen} />
             </View>
           </View>
         </View>
