@@ -18,7 +18,6 @@ Este é um projeto de aplicativo mobile desenvolvido como um desafio. O projeto 
 - [React Native](https://reactnative.dev)
 - [Expo](https://expo.dev)
 - [TypeScript](https://www.typescriptlang.org)
-- [Next.js](https://nextjs.org)
 
 ## Pré-requisitos
 
