@@ -10,6 +10,7 @@ type Porps = {
 
 export function Categories({selected, onChange}: Porps) {
   return (
+    // Renderiza uma lista de catregorias
     <FlatList 
       data={categories}
       keyExtractor={(item) => item.id}
